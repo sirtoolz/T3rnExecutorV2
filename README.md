@@ -11,11 +11,10 @@ This is a one-line script to run T3RN executor node easily.
  ```bash
   wget -qO- https://raw.githubusercontent.com/sirtoolz/T3rnExecutorV2/main/install_t3rn.sh | bash
 ```
-- Run script
+- OR
 
 - Run the script using curl
 ```bash
   curl -sSL https://raw.githubusercontent.com/sirtoolz/T3rnExecutorV2/main/install_t3rn.sh | bash
-```
 ```
 
