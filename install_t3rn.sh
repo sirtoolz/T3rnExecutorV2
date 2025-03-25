@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # ============================================
 # Made With Love By SIRTOOLZ
@@ -6,66 +6,127 @@
 # Telegram Community: t.me/sirtoolzalpha
 # ============================================
 
-echo "============================================"
-echo "🚀 Made With Love By SIRTOOLZ 🚀"
-echo "📌 Twitter: @sirtoolz"
-echo "📢 Join My Telegram Community: t.me/sirtoolzalpha"
-echo "============================================"
-sleep 2
-
 # Update and install dependencies
 echo "Updating and upgrading system..."
 sudo apt update && sudo apt upgrade -y
 
-echo "Installing required dependencies..."
-sudo apt install curl screen jq -y
+echo "Installing required dependencies (curl, screen, jq, expect)..."
+sudo apt install curl screen jq expect -y
 
-# Start a new screen session
+# Start a new screen session (detached)
 echo "Starting a new screen session..."
 screen -S t3rn -d -m
 
-# Download and set up the t3rn script
+# Download t3rn.sh script
 echo "Downloading t3rn.sh script..."
 wget https://raw.githubusercontent.com/voogarix/t3rn-/refs/heads/main/t3rn.sh -O t3rn.sh
 
-echo "Making the script executable..."
+echo "Making t3rn.sh executable..."
 chmod +x t3rn.sh
 
-echo "Starting t3rn installation..."
-./t3rn.sh
+# Now use expect to interact with the t3rn.sh script
+echo "Starting interactive installation using expect..."
+expect << 'EOF'
+  # Disable timeout so it waits indefinitely for user input
+  set timeout -1
 
-# Step-by-step user input
-read -p "Select language (type 'en' for English and press Enter): " language
-echo "$language" | ./t3rn.sh
+  # Start the t3rn.sh script
+  spawn ./t3rn.sh
 
-read -p "Type '1' and press Enter to install the latest version: " install_choice
-echo "$install_choice" | ./t3rn.sh
+  # Step 1: Language selection
+  expect {
+    -re {.*[Ss]elect language.*} {
+      send_user "\nPlease type your language (e.g., 'en' for English): "
+      expect_user -re "(.*)\n"
+      set lang $expect_out(1,string)
+      send "$lang\r"
+    }
+  }
 
-echo "Waiting for extraction to complete..."
-sleep 10
+  # Step 2: Install latest version
+  expect {
+    -re {.*install the latest version.*} {
+      send_user "\nType '1' to install the latest version: "
+      expect_user -re "(.*)\n"
+      set version $expect_out(1,string)
+      send "$version\r"
+    }
+  }
 
-echo "Choose RPC option:"
-echo "Enter 3 for Public RPCs or 2 for Alchemy API Key"
-read -p "Your choice: " rpc_choice
-echo "$rpc_choice" | ./t3rn.sh
+  # Step 3: Wait for extraction (this prompt may vary; adjust the regex if needed)
+  expect {
+    -re {.*extraction complete.*} {
+      send_user "\nExtraction completed. Proceeding...\n"
+    }
+  }
 
-if [ "$rpc_choice" -eq 2 ]; then
-    read -p "Enter your Alchemy API key: " api_key
-    echo "$api_key" | ./t3rn.sh
-fi
+  # Step 4: RPC option selection
+  expect {
+    -re {.*RPC option.*} {
+      send_user "\nEnter 3 for Public RPCs or 2 for Alchemy API Key: "
+      expect_user -re "(.*)\n"
+      set rpc $expect_out(1,string)
+      send "$rpc\r"
+    }
+  }
 
-read -s -p "Enter your wallet private key and press Enter: " private_key
-echo
-echo "$private_key" | ./t3rn.sh
+  # If Alchemy API key is chosen (assuming prompt text includes "Alchemy" when option 2 is selected)
+  if { $rpc eq "2" } {
+    expect {
+      -re {.*Alchemy API key.*} {
+        send_user "\nEnter your Alchemy API key: "
+        expect_user -re "(.*)\n"
+        set apikey $expect_out(1,string)
+        send "$apikey\r"
+      }
+    }
+  }
 
-read -p "Enter your preferred max gas amount and press Enter: " max_gas
-echo "$max_gas" | ./t3rn.sh
+  # Step 5: Wallet private key
+  expect {
+    -re {.*wallet private key.*} {
+      send_user "\nEnter your wallet private key (input hidden): "
+      stty -echo
+      expect_user -re "(.*)\n"
+      stty echo
+      set pkey $expect_out(1,string)
+      send "$pkey\r"
+    }
+  }
 
-read -p "Do you want to add custom public RPC endpoints? (Type 'n' for default and press Enter): " rpc_custom
-echo "$rpc_custom" | ./t3rn.sh
+  # Step 6: Max gas amount
+  expect {
+    -re {.*max gas amount.*} {
+      send_user "\nEnter your preferred max gas amount: "
+      expect_user -re "(.*)\n"
+      set gas $expect_out(1,string)
+      send "$gas\r"
+    }
+  }
 
-read -p "Enable networks (Type 'ARBT,BAST,OPST,UNIT' and press Enter): " networks
-echo "$networks" | ./t3rn.sh
+  # Step 7: Custom public RPC endpoints prompt
+  expect {
+    -re {.*custom public RPC endpoints.*} {
+      send_user "\nDo you want to add custom public RPC endpoints? (type 'n' for default): "
+      expect_user -re "(.*)\n"
+      set custom_rpc $expect_out(1,string)
+      send "$custom_rpc\r"
+    }
+  }
+
+  # Step 8: Enabling networks
+  expect {
+    -re {.*Enable networks.*} {
+      send_user "\nType the networks to enable (e.g., ARBT,BAST,OPST,UNIT): "
+      expect_user -re "(.*)\n"
+      set networks $expect_out(1,string)
+      send "$networks\r"
+    }
+  }
+
+  # End of interaction
+  expect eof
+EOF
 
 echo "✅ Setup completed successfully!"
 echo "🚀 Made With Love By SIRTOOLZ"
