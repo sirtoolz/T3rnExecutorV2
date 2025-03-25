@@ -13,27 +13,33 @@ echo "📢 Join My Telegram Community: t.me/sirtoolzalpha"
 echo "============================================"
 sleep 2
 
+# Update and install dependencies
 echo "Updating and upgrading system..."
 sudo apt update && sudo apt upgrade -y
 
 echo "Installing required dependencies..."
 sudo apt install curl screen jq -y
 
+# Start a new screen session
 echo "Starting a new screen session..."
 screen -S t3rn -d -m
 
+# Download and set up the t3rn script
 echo "Downloading t3rn.sh script..."
 wget https://raw.githubusercontent.com/voogarix/t3rn-/refs/heads/main/t3rn.sh -O t3rn.sh
 
-echo "Making the script executable and running it..."
-chmod +x t3rn.sh && ./t3rn.sh
+echo "Making the script executable..."
+chmod +x t3rn.sh
 
-# Simulating user input
-echo "Selecting English..."
-echo "en" | ./t3rn.sh
+echo "Starting t3rn installation..."
+./t3rn.sh
 
-echo "Installing the latest version..."
-echo "1" | ./t3rn.sh
+# Step-by-step user input
+read -p "Select language (type 'en' for English and press Enter): " language
+echo "$language" | ./t3rn.sh
+
+read -p "Type '1' and press Enter to install the latest version: " install_choice
+echo "$install_choice" | ./t3rn.sh
 
 echo "Waiting for extraction to complete..."
 sleep 10
@@ -48,18 +54,18 @@ if [ "$rpc_choice" -eq 2 ]; then
     echo "$api_key" | ./t3rn.sh
 fi
 
-read -s -p "Enter your wallet private key: " private_key
+read -s -p "Enter your wallet private key and press Enter: " private_key
 echo
 echo "$private_key" | ./t3rn.sh
 
-read -p "Enter your preferred max gas amount: " max_gas
+read -p "Enter your preferred max gas amount and press Enter: " max_gas
 echo "$max_gas" | ./t3rn.sh
 
-echo "Using default public RPCs..."
-echo "n" | ./t3rn.sh
+read -p "Do you want to add custom public RPC endpoints? (Type 'n' for default and press Enter): " rpc_custom
+echo "$rpc_custom" | ./t3rn.sh
 
-echo "Enabling networks..."
-echo "ARBT,BAST,OPST,UNIT" | ./t3rn.sh
+read -p "Enable networks (Type 'ARBT,BAST,OPST,UNIT' and press Enter): " networks
+echo "$networks" | ./t3rn.sh
 
 echo "✅ Setup completed successfully!"
 echo "🚀 Made With Love By SIRTOOLZ"
